@@ -66,7 +66,7 @@ function adaptiveLerp(current, target) {
     current.y += (target.y - current.y) * lerpFactor;
 }
 
-// ===== INDEPENDENT RENDER LOOP (MENGEMBALIKAN KESEMBANGAN INTERPOLASI 60 FPS) =====
+// ===== INDEPENDENT RENDER LOOP =====
 function processAnimation() {
     if (video.videoWidth && video.videoHeight) {
         if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -110,8 +110,7 @@ function onHandResults(results) {
         results.multiHandLandmarks.forEach((landmarks, index) => {
             const label = results.multiHandedness[index].label; 
             
-            // OPTIMASI PERFORMA BESAR: Mengganti library drawLandmarks bawaan yang sangat berat
-            // dengan render kustom manual berupa lingkaran titik minimalis warna Biru Neon
+            // Render kustom manual berupa lingkaran titik minimalis warna Biru Neon
             ctx.fillStyle = "#ffffff";
             ctx.strokeStyle = "rgba(0, 216, 255, 0.8)";
             ctx.lineWidth = 2;
@@ -161,7 +160,7 @@ function renderCyberHUDFrame() {
     const pTR = hudFrame.topRight;
     const pBR = hudFrame.bottomRight;
 
-    // --- FITUR A: OPTIMIZED SMOOTH BLUE BLUR MASKING ---
+    // --- FITUR A: HIGH PERFORMANCE SMOOTH BLUR MASKING ---
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(pTL.x, pTL.y);
@@ -171,25 +170,25 @@ function renderCyberHUDFrame() {
     ctx.closePath();
     ctx.clip(); 
 
-    // PERBAIKAN GRAFIK BLUR: Mengubah ukuran pembagi koordinat ke angka 65 agar
-    // pikselasi menjadi tidak terlalu kasar, lebih rapat/kecil, halus, dan sangat ringan dijalankan.
-    const pixelSize = 65; 
+    // PERBAIKAN: Mengubah nilai pembagi ke angka 140 agar ukuran pikselasi sangat kecil,
+    // menghasilkan efek blur yang samar, halus, transparan, dan tidak menutupi video utama secara berlebihan.
+    const pixelSize = 140; 
     offscreenCanvas.width = Math.max(1, canvas.width / pixelSize);
     offscreenCanvas.height = Math.max(1, canvas.height / pixelSize);
     
-    offscreenCtx.imageSmoothingEnabled = true; // Diaktifkan true agar efek blur terlihat lebih halus, tidak patah tajam
+    offscreenCtx.imageSmoothingEnabled = true; 
     offscreenCtx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
     
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
     
-    // Overlay Tint Biru Neon Tipis Transparan
-    ctx.fillStyle = "rgba(0, 216, 255, 0.04)";
+    // Lapisan overlay biru neon yang sangat tipis agar warna menyatu pas
+    ctx.fillStyle = "rgba(0, 216, 255, 0.03)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Efek Scanline Biru
+    // Efek Scanline Dinamis
     const scanlineY = (performance.now() * 0.05) % canvas.height;
-    ctx.strokeStyle = "rgba(0, 216, 255, 0.08)";
+    ctx.strokeStyle = "rgba(0, 216, 255, 0.05)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, scanlineY);
@@ -237,7 +236,7 @@ function renderCyberHUDFrame() {
     ctx.moveTo(pBL.x + len, pBL.y); ctx.lineTo(pBL.x, pBL.y); ctx.lineTo(pBL.x, pBL.y - len);
     ctx.stroke();
 
-    // PERUBAHAN TEKS INDIKATOR BOX: Mengubah teks di atas kotak menjadi "RIZ_PROJECT"
+    // Teks Indikator Box
     ctx.shadowBlur = 0;
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 12px monospace";
